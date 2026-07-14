@@ -229,8 +229,8 @@
         ou qualquer API compatível com OpenAI, ex.: Grok/xAI)
      ============================================================ */
   function getAIConfig() {
-    try { return JSON.parse(localStorage.getItem(LS_AI) || "null") || { provider: "gemini", geminiKey: "", geminiModel: "gemini-3.1-flash", baseUrl: "https://api.x.ai/v1", apiKey: "", model: "grok-4-1-fast-non-reasoning" }; }
-    catch (e) { return { provider: "gemini", geminiKey: "", geminiModel: "gemini-3.1-flash", baseUrl: "https://api.x.ai/v1", apiKey: "", model: "grok-4-1-fast-non-reasoning" }; }
+    try { return JSON.parse(localStorage.getItem(LS_AI) || "null") || { provider: "gemini", geminiKey: "", geminiModel: "gemini-2.5-flash-lite", baseUrl: "https://api.x.ai/v1", apiKey: "", model: "grok-4-1-fast-non-reasoning" }; }
+    catch (e) { return { provider: "gemini", geminiKey: "", geminiModel: "gemini-2.5-flash-lite", baseUrl: "https://api.x.ai/v1", apiKey: "", model: "grok-4-1-fast-non-reasoning" }; }
   }
   function setAIConfig(cfg) { localStorage.setItem(LS_AI, JSON.stringify(cfg)); }
   function aiReady() {
