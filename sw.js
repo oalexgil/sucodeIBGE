@@ -1,10 +1,12 @@
 /* IBGE 2026 — Painel de Estudos · Service Worker */
-const CACHE = "ibge-app-v1";
+const CACHE = "ibge-app-v2";
 const CORE = [
   "./",
   "./index.html",
   "./app.js",
   "./manifest.json",
+  "./questoes.html",
+  "./questoes-data.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./cursos/Curso-Lingua-Portuguesa-IBGE.html",

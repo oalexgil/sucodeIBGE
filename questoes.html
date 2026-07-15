@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1f3864">
+<title>Banco de Questões — IBGE 2026</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icons/icon-192.png">
+<style>
+  :root{
+    --navy:#1f3864; --blue:#2e75b6; --sky:#5b9bd5; --light:#eaf0fa; --line:#d9e2f3;
+    --green:#548235; --green-bg:#e9f3e0; --orange:#c55a11; --orange-bg:#fcefe4;
+    --red:#b02418; --red-bg:#fbeae8; --gold:#b8860b; --gold-bg:#fdf6e3;
+    --purple:#5b3d8a; --purple-bg:#f0eaf8; --gray:#5a6172; --ink:#1a2236; --paper:#fff; --bg:#eef1f8;
+    --c-pt:#2e75b6; --c-rlq:#5b3d8a; --c-esp:#c55a11;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:40px}
+  button{font-family:inherit}
+  :focus-visible{outline:3px solid var(--sky);outline-offset:2px;border-radius:4px}
+
+  header{background:linear-gradient(135deg,var(--navy),#28497e 65%,var(--blue) 140%);color:#fff;padding:16px 18px}
+  .hwrap{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .hwrap a.back{color:#fff;text-decoration:none;background:rgba(255,255,255,.14);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600}
+  .hwrap h1{font-size:18px;font-weight:800;flex:1}
+  .hwrap .score{font-size:13px;background:rgba(255,255,255,.14);border-radius:999px;padding:7px 14px}
+
+  main{max-width:860px;margin:0 auto;padding:16px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .chip{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:700;cursor:pointer;color:var(--gray)}
+  .chip.on{color:#fff;border-color:transparent}
+  .chip.on[data-d="all"]{background:var(--navy)}
+  .chip.on[data-d="pt"]{background:var(--c-pt)}
+  .chip.on[data-d="rlq"]{background:var(--c-rlq)}
+  .chip.on[data-d="esp"]{background:var(--c-esp)}
+  .toolrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .toolrow .btn{background:none;border:1px solid var(--line);border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:700;color:var(--blue);cursor:pointer}
+  .toolrow .btn.solid{background:var(--green);border-color:var(--green);color:#fff}
+  .meta{font-size:12.5px;color:var(--gray);margin-left:auto}
+
+  .qcard{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 10px rgba(31,56,100,.06)}
+  .qtop{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .qnum{font-size:12px;font-weight:800;color:var(--gray)}
+  .tag{font-size:11px;font-weight:800;border-radius:999px;padding:3px 10px;color:#fff}
+  .tag.pt{background:var(--c-pt)} .tag.rlq{background:var(--c-rlq)} .tag.esp{background:var(--c-esp)}
+  .tag.top{background:var(--light);color:var(--navy)}
+  .stem{font-size:15.5px;line-height:1.6;margin-bottom:14px}
+  .stem em{background:var(--gold-bg);font-style:normal;padding:0 3px;border-radius:3px}
+  .alt{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px;cursor:pointer;font-size:14.5px;line-height:1.5;transition:border-color .12s, background .12s}
+  .alt:hover{border-color:var(--sky)}
+  .alt .let{font-weight:800;color:var(--blue);flex:0 0 auto}
+  .alt.correct{border-color:var(--green);background:var(--green-bg)}
+  .alt.wrong{border-color:var(--red);background:var(--red-bg)}
+  .qcard.answered .alt{cursor:default}
+  .why{display:none;margin-top:12px;background:var(--gold-bg);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 14px;font-size:14px;line-height:1.6}
+  .why.show{display:block}
+  .qfoot{display:none;margin-top:12px;gap:8px}
+  .qfoot.show{display:flex;flex-wrap:wrap}
+  .qfoot button{border:1px solid var(--line);background:none;border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--blue)}
+  .qfoot .adderr{color:var(--red);border-color:#eecac5}
+
+  .sessionbar{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:1px solid var(--line);padding:9px 16px;display:flex;gap:16px;font-size:13px;font-weight:700;color:var(--navy)}
+  .sessionbar span b{color:var(--green)}
+  .sessionbar span.w b{color:var(--red)}
+  .endcard{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:26px;text-align:center}
+  .endcard .big{font-size:42px;font-weight:800;color:var(--navy)}
+  .endcard p{color:var(--gray);font-size:14px;margin:8px 0 16px}
+  .endcard button{background:var(--navy);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-weight:700;cursor:pointer}
+  .empty{text-align:center;color:var(--gray);padding:30px;font-size:14px}
+  @media(max-width:480px){ main{padding:12px} .qcard{padding:15px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hwrap">
+    <a class="back" href="./index.html">← Painel</a>
+    <h1>🎯 Banco de Questões</h1>
+    <span class="score" id="globalScore">—</span>
+  </div>
+</header>
+
+<div class="sessionbar" id="sessionBar" hidden>
+  <span>Sessão: <b id="sOk">0</b> acertos</span>
+  <span class="w"><b id="sErr">0</b> erros</span>
+  <span id="sLeft"></span>
+</div>
+
+<main>
+  <div class="filters" id="discFilters">
+    <button class="chip on" data-d="all">Todas</button>
+    <button class="chip" data-d="pt">Português</button>
+    <button class="chip" data-d="rlq">Raciocínio Lógico</button>
+    <button class="chip" data-d="esp">Específicos</button>
+  </div>
+  <div class="toolrow">
+    <button class="btn solid" id="btnStart">▶ Praticar (aleatório)</button>
+    <button class="btn" id="btnSeq">Em ordem</button>
+    <button class="btn" id="btnErradas">Só as que errei</button>
+    <span class="meta" id="meta"></span>
+  </div>
+  <div id="list"></div>
+</main>
+
+<script src="./app.js"></script>
+<script src="./questoes-data.js"></script>
+<script>
+(function(){
+"use strict";
+const App = window.IBGEApp;
+const { esc, uid } = App.util;
+const DISC = { pt:"Português", rlq:"Raciocínio Lógico", esp:"Específicos" };
+let disc = "all";
+let queue = [];        // fila da sessão atual
+let pos = 0;
+let sOk = 0, sErr = 0;
+let mode = "browse";
+
+const listEl = document.getElementById("list");
+
+function statKey(q){ return q.disc + ":qb_" + q.id; }
+function stats(){ return App.getSection("stats") || {}; }
+
+function renderGlobalScore(){
+  const st = stats();
+  let ok=0, t=0;
+  QUESTOES.forEach(q=>{ const s=st[statKey(q)]; if(s){ t++; if(s.ok) ok++; } });
+  document.getElementById("globalScore").textContent = t ? `${ok}/${t} respondidas · ${Math.round(ok/t*100)}%` : QUESTOES.length + " questões";
+}
+
+function pool(){
+  let qs = QUESTOES.filter(q => disc==="all" || q.disc===disc);
+  if (mode==="erradas"){
+    const st = stats();
+    qs = qs.filter(q => st[statKey(q)] && !st[statKey(q)].ok);
+  }
+  return qs;
+}
+
+function updateMeta(){
+  const st = stats();
+  const qs = QUESTOES.filter(q => disc==="all" || q.disc===disc);
+  const done = qs.filter(q=>st[statKey(q)]).length;
+  document.getElementById("meta").textContent = `${qs.length} questões · ${done} respondidas`;
+}
+
+function startSession(shuffle, onlyWrong){
+  mode = onlyWrong ? "erradas" : "sessao";
+  queue = pool().slice();
+  if (onlyWrong && !queue.length){
+    listEl.innerHTML = '<div class="empty">Nenhuma questão errada neste filtro — ou você ainda não respondeu, ou está afiado. 🎉</div>';
+    document.getElementById("sessionBar").hidden = true;
+    return;
+  }
+  if (shuffle) queue.sort(()=>Math.random()-0.5);
+  pos = 0; sOk = 0; sErr = 0;
+  document.getElementById("sessionBar").hidden = false;
+  updateBar();
+  renderQuestion();
+}
+
+function updateBar(){
+  document.getElementById("sOk").textContent = sOk;
+  document.getElementById("sErr").textContent = sErr;
+  document.getElementById("sLeft").textContent = `${pos+ (pos<queue.length?1:0)}/${queue.length}`;
+}
+
+function renderQuestion(){
+  if (pos >= queue.length){ renderEnd(); return; }
+  const q = queue[pos];
+  listEl.innerHTML = qHTML(q, pos+1);
+  bindQ(listEl.querySelector(".qcard"), q, ()=>{ pos++; updateBar(); renderQuestion(); });
+  updateBar();
+  window.scrollTo({top:0});
+}
+
+function renderEnd(){
+  const total = sOk + sErr;
+  const pct = total ? Math.round(sOk/total*100) : 0;
+  const pass = pct >= 40;
+  listEl.innerHTML = `<div class="endcard">
+    <div class="big">${pct}%</div>
+    <p>${sOk} acertos em ${total} questões nesta sessão.<br>${pass ? "Acima da linha de corte da prova (40%) — mantenha o ritmo." : "Abaixo dos 40% do corte — revise os comentários e o caderno de erros."}</p>
+    <button id="again">Praticar novamente</button>
+  </div>`;
+  document.getElementById("again").addEventListener("click", ()=>startSession(true,false));
+}
+
+function qHTML(q, num){
+  const alts = q.alts.map((t,i)=>`<div class="alt" data-i="${i}"><span class="let">${String.fromCharCode(65+i)})</span><span>${t}</span></div>`).join("");
+  return `<div class="qcard" data-id="${q.id}">
+    <div class="qtop"><span class="qnum">Questão ${String(num).padStart(2,"0")}</span>
+      <span class="tag ${q.disc}">${DISC[q.disc]}</span><span class="tag top">${esc(q.top)}</span></div>
+    <div class="stem">${q.stem}</div>${alts}
+    <div class="why"><b>Gabarito comentado:</b> ${q.why}</div>
+    <div class="qfoot"><button class="adderr">📕 Adicionar ao caderno de erros</button><button class="next">Próxima →</button></div>
+  </div>`;
+}
+
+function bindQ(card, q, onNext){
+  card.querySelectorAll(".alt").forEach(alt=>{
+    alt.addEventListener("click", ()=>{
+      if (card.classList.contains("answered")) return;
+      card.classList.add("answered");
+      const i = Number(alt.dataset.i);
+      const ok = i === q.correct;
+      alt.classList.add(ok ? "correct" : "wrong");
+      if (!ok) card.querySelector(`.alt[data-i="${q.correct}"]`).classList.add("correct");
+      card.querySelector(".why").classList.add("show");
+      const foot = card.querySelector(".qfoot"); foot.classList.add("show");
+      if (ok) foot.querySelector(".adderr").style.display = "none";
+      if (mode!=="browse"){ ok ? sOk++ : sErr++; updateBar(); }
+      const st = stats(); st[statKey(q)] = { ok: ok, when: Date.now() };
+      App.saveSection("stats", st);
+      renderGlobalScore(); updateMeta();
+    });
+  });
+  card.querySelector(".adderr").addEventListener("click", (e)=>{
+    const erros = App.getSection("erros") || [];
+    erros.unshift({ id: uid(), disc: q.disc, topico: q.top,
+      desc: "Questão do banco: " + card.querySelector(".stem").textContent.slice(0,220),
+      evitar: card.querySelector(".why").textContent.replace("Gabarito comentado:","").trim().slice(0,300),
+      created: Date.now(), rev:{r1:false,r7:false,r16:false} });
+    App.saveSection("erros", erros);
+    e.target.textContent = "✔ No caderno"; e.target.disabled = true;
+  });
+  card.querySelector(".next").addEventListener("click", ()=>{
+    if (onNext) onNext();
+  });
+}
+
+function renderBrowse(){
+  mode = "browse";
+  document.getElementById("sessionBar").hidden = true;
+  const qs = pool();
+  const st = stats();
+  listEl.innerHTML = qs.map((q,i)=>qHTML(q,i+1)).join("") || '<div class="empty">Nenhuma questão neste filtro.</div>';
+  listEl.querySelectorAll(".qcard").forEach((card)=>{
+    const q = QUESTOES.find(x=>x.id===card.dataset.id);
+    bindQ(card, q, null);
+    card.querySelector(".next").style.display = "none";
+  });
+}
+
+document.querySelectorAll("#discFilters .chip").forEach(c=>{
+  c.addEventListener("click", ()=>{
+    document.querySelectorAll("#discFilters .chip").forEach(x=>x.classList.toggle("on",x===c));
+    disc = c.dataset.d;
+    updateMeta();
+    if (mode==="browse") renderBrowse(); else startSession(true, mode==="erradas");
+  });
+});
+document.getElementById("btnStart").addEventListener("click", ()=>startSession(true,false));
+document.getElementById("btnSeq").addEventListener("click", ()=>startSession(false,false));
+document.getElementById("btnErradas").addEventListener("click", ()=>startSession(true,true));
+
+renderGlobalScore();
+updateMeta();
+renderBrowse();
+})();
+</script>
+</body>
+</html>

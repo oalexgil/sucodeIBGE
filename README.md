@@ -5,7 +5,8 @@ App de estudos (PWA) para o **PSS 02/2026 do IBGE** — Analista Censitário, We
 **O que tem dentro:**
 
 - 🏠 **Painel** — countdown para a prova (30/08/2026), progresso por disciplina e geral, revisões pendentes do dia
-- 📚 **Os 3 cursos completos** — Língua Portuguesa (15 aulas), Raciocínio Lógico (10) e Conhecimentos Específicos (9), com botões flutuantes de notas e dúvidas dentro de cada aula
+- 📚 **Os 3 cursos completos** — Língua Portuguesa (16 aulas), Raciocínio Lógico (11) e Conhecimentos Específicos (12) — 39 aulas cobrindo 100% do Anexo III do edital, com botões flutuantes de notas e dúvidas dentro de cada aula
+- 🎯 **Banco de Questões** — 60 questões comentadas no estilo da banca (18 PT · 12 RLQ · 30 ESP), com modo praticar, filtro por disciplina, refazer só as erradas e integração com o caderno de erros
 - 📕 **Caderno de erros** — com ciclo de revisão espaçada (D+1, D+7, D+16); exercícios errados nas aulas oferecem inclusão com 1 toque
 - ⏱️ **Simulados** — cronômetro + registro de resultados com verificação automática do critério de aprovação (≥24/60 e ≥1 por disciplina) e gráfico de evolução
 - 📝 **Anotações por aula** — feitas dentro do curso ou no painel, sempre juntas
@@ -74,12 +75,14 @@ Abrir o `index.html` direto do disco (file://) não funciona para sincronizaçã
 ## Estrutura
 
 ```
-index.html      → Painel do Candidato (hub)
-app.js          → dados, sincronização, IA e integração com os cursos
-sw.js           → service worker (offline)
-manifest.json   → manifesto do PWA
-icons/          → ícones do app
-cursos/         → os 3 cursos HTML (com a camada do app injetada)
+index.html         → Painel do Candidato (hub)
+questoes.html      → Banco de Questões (60 questões comentadas)
+questoes-data.js   → dados das questões
+app.js             → dados, sincronização, IA e integração com os cursos
+sw.js              → service worker (offline)
+manifest.json      → manifesto do PWA
+icons/             → ícones do app
+cursos/            → os 3 cursos HTML (com a camada do app injetada)
 ```
 
 ## Backup manual

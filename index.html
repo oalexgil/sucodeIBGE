@@ -14,6 +14,7 @@
     --green:#548235; --green-bg:#e9f3e0; --orange:#c55a11; --orange-bg:#fcefe4;
     --red:#b02418; --red-bg:#fbeae8; --gold:#b8860b; --gold-bg:#fdf6e3;
     --purple:#5b3d8a; --purple-bg:#f0eaf8; --gray:#5a6172; --ink:#1a2236; --paper:#fff; --bg:#eef1f8;
+    --c-pt:#2e75b6; --c-pt-bg:#eaf0fa; --c-rlq:#5b3d8a; --c-rlq-bg:#f0eaf8; --c-esp:#c55a11; --c-esp-bg:#fcefe4;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -52,9 +53,23 @@
 
   /* ---------- Progresso ---------- */
   .disc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
-  .disc{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:block;
+  .disc{background:var(--paper);border:1px solid var(--line);border-top:4px solid var(--blue);border-radius:14px;padding:16px;display:block;
     text-decoration:none;color:inherit;transition:box-shadow .15s, transform .15s}
+  .disc[data-cid="pt"]{border-top-color:var(--c-pt)} .disc[data-cid="pt"] .pct{color:var(--c-pt)}
+  .disc[data-cid="rlq"]{border-top-color:var(--c-rlq)} .disc[data-cid="rlq"] .pct{color:var(--c-rlq)}
+  .disc[data-cid="esp"]{border-top-color:var(--c-esp)} .disc[data-cid="esp"] .pct{color:var(--c-esp)}
+  .disc[data-cid="pt"] .bar i{background:linear-gradient(90deg,var(--c-pt),#6fa5db)}
+  .disc[data-cid="rlq"] .bar i{background:linear-gradient(90deg,var(--c-rlq),#8a68bd)}
+  .disc[data-cid="esp"] .bar i{background:linear-gradient(90deg,var(--c-esp),#e08a4e)}
   .disc:hover{box-shadow:0 6px 18px rgba(31,56,100,.14);transform:translateY(-2px)}
+  .disc:focus-visible{transform:translateY(-2px)}
+  .qcta{display:flex;gap:14px;align-items:center;background:linear-gradient(120deg,var(--navy),#2c528c);color:#fff;
+    border-radius:14px;padding:16px 18px;text-decoration:none;margin:14px 0;transition:box-shadow .15s, transform .15s}
+  .qcta:hover{box-shadow:0 8px 20px rgba(31,56,100,.3);transform:translateY(-2px)}
+  .qcta .ic{font-size:28px}
+  .qcta b{font-size:15px;display:block}
+  .qcta span{font-size:12.5px;opacity:.85}
+  .qcta .go{margin-left:auto;font-size:20px;opacity:.9}
   .disc .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   .disc h3{font-size:15px;color:var(--navy)}
   .disc .pct{font-size:22px;font-weight:800;color:var(--blue)}
@@ -71,6 +86,9 @@
   .pill.red{background:var(--red-bg);color:var(--red)}
   .pill.gold{background:var(--gold-bg);color:var(--gold)}
   .pill.blue{background:var(--light);color:var(--blue)}
+  .pill.pt{background:var(--c-pt-bg);color:var(--c-pt)}
+  .pill.rlq{background:var(--c-rlq-bg);color:var(--c-rlq)}
+  .pill.esp{background:var(--c-esp-bg);color:var(--c-esp)}
 
   .duecard{border-left:4px solid var(--gold)}
   .duecard ul{list-style:none;margin-top:8px}
@@ -140,9 +158,9 @@
   /* ---------- Navegação inferior ---------- */
   nav.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--paper);border-top:1px solid var(--line);
     display:flex;justify-content:space-around;z-index:100;padding:5px 2px calc(5px + env(safe-area-inset-bottom))}
-  nav.tabs button{background:none;border:none;font-size:10.5px;color:var(--gray);cursor:pointer;
-    display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 8px;border-radius:10px;font-weight:600}
-  nav.tabs button .ic{font-size:19px}
+  nav.tabs button, nav.tabs a{background:none;border:none;font-size:10.5px;color:var(--gray);cursor:pointer;text-decoration:none;
+    display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 7px;border-radius:10px;font-weight:600}
+  nav.tabs button .ic, nav.tabs a .ic{font-size:19px}
   nav.tabs button.active{color:var(--navy);background:var(--light)}
   .empty{font-size:13.5px;color:var(--gray);text-align:center;padding:18px 8px}
 </style>
@@ -175,12 +193,18 @@
 
     <div class="card totalbar" id="totalCard"></div>
 
+    <a class="qcta" href="./questoes.html">
+      <span class="ic">🎯</span>
+      <span><b>Banco de Questões</b><span id="qctaMeta">60 questões comentadas no estilo da banca</span></span>
+      <span class="go">→</span>
+    </a>
+
     <div class="card duecard" id="dueCard" hidden>
       <b style="color:var(--gold);font-size:14px">🔔 Revisões do caderno de erros para hoje</b>
       <ul id="dueList"></ul>
     </div>
 
-    <h2 class="sec">📈 Desempenho nos exercícios das aulas</h2>
+    <h2 class="sec">📈 Desempenho — exercícios das aulas e banco de questões</h2>
     <div class="card"><div class="statline" id="exStats"></div></div>
   </section>
 
@@ -330,6 +354,7 @@
 
 <nav class="tabs" aria-label="Navegação principal">
   <button data-tab="inicio" class="active"><span class="ic">🏠</span>Início</button>
+  <a href="./questoes.html"><span class="ic">🎯</span>Questões</a>
   <button data-tab="erros"><span class="ic">📕</span>Erros</button>
   <button data-tab="simulados"><span class="ic">⏱️</span>Simulados</button>
   <button data-tab="notas"><span class="ic">📝</span>Notas</button>
@@ -381,7 +406,7 @@ function renderProgress(){
     const c=COURSES[cid], n=doneCount(cid), pct=Math.round(n/c.total*100);
     total+=c.total; doneTotal+=n;
     grid.insertAdjacentHTML("beforeend",
-      '<a class="disc" href="./'+c.file+'"><div class="top"><h3>'+esc(c.name)+'</h3><span class="pct">'+pct+'%</span></div>'+
+      '<a class="disc" data-cid="'+cid+'" href="./'+c.file+'"><div class="top"><h3>'+esc(c.name)+'</h3><span class="pct">'+pct+'%</span></div>'+
       '<div class="meta">'+n+' de '+c.total+' aulas · '+c.q+' questões na prova</div>'+
       '<div class="bar"><i style="width:'+pct+'%"></i></div>'+
       '<span class="go">Abrir curso →</span></a>');
@@ -390,6 +415,12 @@ function renderProgress(){
   document.getElementById("totalCard").innerHTML =
     '<div class="row"><b>Progresso geral do plano</b><b>'+doneTotal+'/'+total+' aulas · '+tp+'%</b></div>'+
     '<div class="bar"><i style="width:'+tp+'%"></i></div>';
+  const st = App.getSection("stats")||{};
+  const qb = Object.keys(st).filter(k=>k.indexOf(":qb_")>-1);
+  const qbOk = qb.filter(k=>st[k].ok).length;
+  document.getElementById("qctaMeta").textContent = qb.length
+    ? qbOk+"/"+qb.length+" respondidas · "+Math.round(qbOk/qb.length*100)+"% de acerto"
+    : "60 questões comentadas no estilo da banca";
 }
 
 /* ---------- Exercícios ---------- */
@@ -429,7 +460,7 @@ function renderErros(){
   else list.innerHTML = rows.map(e=>{
     const due = dueRevs(e);
     return '<div class="erro"><div class="tp"><b>'+esc(e.topico||"(sem tópico)")+'</b>'+
-      '<span class="pill blue">'+esc(DISC_NAMES[e.disc]||e.disc)+'</span>'+
+      '<span class="pill '+e.disc+'">'+esc(DISC_NAMES[e.disc]||e.disc)+'</span>'+
       (due.length?'<span class="pill gold">🔔 revisar: '+due.join(", ")+'</span>':'')+
       '<span class="pill '+(e.rev.r16?'green':'red')+'">'+(e.rev.r16?'ciclo completo':'em revisão')+'</span></div>'+
       '<p>'+esc(e.desc)+'</p>'+
@@ -466,7 +497,7 @@ function renderDue(){
   const card=document.getElementById("dueCard");
   card.hidden=!due.length;
   document.getElementById("dueList").innerHTML=due.slice(0,8).map(e=>
-    '<li><span class="pill blue">'+esc(DISC_NAMES[e.disc]||e.disc)+'</span> '+esc(e.topico||e.desc.slice(0,60))+
+    '<li><span class="pill '+e.disc+'">'+esc(DISC_NAMES[e.disc]||e.disc)+'</span> '+esc(e.topico||e.desc.slice(0,60))+
     ' <span class="pill gold">'+dueRevs(e).join(", ")+'</span></li>').join("");
 }
 

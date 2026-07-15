@@ -15,9 +15,9 @@
   const GIST_DESC = "Dados de estudo — IBGE 2026 (Painel de Estudos)";
 
   const COURSES = {
-    pt:  { name: "Língua Portuguesa",        file: "cursos/Curso-Lingua-Portuguesa-IBGE.html",        storageKey: "ibge_curso_pt_v2",  total: 15, q: 15 },
-    rlq: { name: "Raciocínio Lógico",        file: "cursos/Curso-Raciocinio-Logico-IBGE.html",        storageKey: "ibge_curso_rlq_v2", total: 10, q: 10 },
-    esp: { name: "Conhecimentos Específicos", file: "cursos/Curso-Conhecimentos-Especificos-IBGE.html", storageKey: "ibge_curso_esp_v2", total: 9,  q: 35 }
+    pt:  { name: "Língua Portuguesa",        file: "cursos/Curso-Lingua-Portuguesa-IBGE.html",        storageKey: "ibge_curso_pt_v2",  total: 16, q: 15 },
+    rlq: { name: "Raciocínio Lógico",        file: "cursos/Curso-Raciocinio-Logico-IBGE.html",        storageKey: "ibge_curso_rlq_v2", total: 11, q: 10 },
+    esp: { name: "Conhecimentos Específicos", file: "cursos/Curso-Conhecimentos-Especificos-IBGE.html", storageKey: "ibge_curso_esp_v2", total: 12,  q: 35 }
   };
 
   const IS_COURSE = typeof window.IBGE_COURSE !== "undefined";
@@ -229,8 +229,8 @@
         ou qualquer API compatível com OpenAI, ex.: Grok/xAI)
      ============================================================ */
   function getAIConfig() {
-    try { return JSON.parse(localStorage.getItem(LS_AI) || "null") || { provider: "gemini", geminiKey: "", geminiModel: "gemini-2.5-flash-lite", baseUrl: "https://api.x.ai/v1", apiKey: "", model: "grok-4-1-fast-non-reasoning" }; }
-    catch (e) { return { provider: "gemini", geminiKey: "", geminiModel: "gemini-2.5-flash-lite", baseUrl: "https://api.x.ai/v1", apiKey: "", model: "grok-4-1-fast-non-reasoning" }; }
+    try { return JSON.parse(localStorage.getItem(LS_AI) || "null") || { provider: "gemini", geminiKey: "", geminiModel: "gemini-2.5-flash", baseUrl: "https://api.x.ai/v1", apiKey: "", model: "grok-4-1-fast-non-reasoning" }; }
+    catch (e) { return { provider: "gemini", geminiKey: "", geminiModel: "gemini-2.5-flash", baseUrl: "https://api.x.ai/v1", apiKey: "", model: "grok-4-1-fast-non-reasoning" }; }
   }
   function setAIConfig(cfg) { localStorage.setItem(LS_AI, JSON.stringify(cfg)); }
   function aiReady() {
