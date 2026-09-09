@@ -1,0 +1,14 @@
+{
+  "name": "suconcursos-ibge-2026",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser-first exam study PWA and reference implementation of SUConcursos Engine.",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "ci": "npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
