@@ -1,92 +1,143 @@
-# IBGE 2026 — Painel de Estudos 📚
+# SUConcursos — IBGE 2026
 
-App de estudos (PWA) para o **PSS 02/2026 do IBGE** — Analista Censitário, Webdesign e Produção Gráfica (Instituto Avalia). Funciona no celular e no computador, offline, com sincronização entre dispositivos e professor de IA integrado.
+Progressive Web App for structured exam preparation, currently configured for the **IBGE PSS 02/2026 — Analista Censitário / Webdesign e Produção Gráfica**.
 
-**O que tem dentro:**
+The repository is more than a static course: it combines lessons, question practice, spaced review, error tracking, simulations, notes, progress data, optional synchronization and an AI study assistant in a browser-first PWA.
 
-- 🏠 **Painel** — countdown para a prova (30/08/2026), progresso por disciplina e geral, revisões pendentes do dia
-- 📚 **Os 3 cursos completos** — Língua Portuguesa (16 aulas), Raciocínio Lógico (11) e Conhecimentos Específicos (12) — 39 aulas cobrindo 100% do Anexo III do edital, com botões flutuantes de notas e dúvidas dentro de cada aula
-- 🎯 **Banco de Questões** — 60 questões comentadas no estilo da banca (18 PT · 12 RLQ · 30 ESP), com modo praticar, filtro por disciplina, refazer só as erradas e integração com o caderno de erros
-- 📕 **Caderno de erros** — com ciclo de revisão espaçada (D+1, D+7, D+16); exercícios errados nas aulas oferecem inclusão com 1 toque
-- ⏱️ **Simulados** — cronômetro + registro de resultados com verificação automática do critério de aprovação (≥24/60 e ≥1 por disciplina) e gráfico de evolução
-- 📝 **Anotações por aula** — feitas dentro do curso ou no painel, sempre juntas
-- 🤖 **Professor de plantão (IA)** — dentro das aulas envia automaticamente o contexto (disciplina, aula e trecho selecionado); calibrado para a banca, incluindo a trava CS6 × CC
-- 🔄 **Sincronização** — via Gist secreto do GitHub; celular e computador sempre com os mesmos dados
+> **Product direction:** the current IBGE experience should be treated as a reference implementation of a reusable **SUConcursos Engine**, with exam-specific content separated from the learning platform.
 
----
+## Current capabilities
 
-## 1. Publicar no GitHub Pages (~5 min)
+- installable PWA with offline support for local content;
+- 3 study tracks and 39 lessons;
+- question bank and error notebook;
+- spaced review cycle;
+- simulation history and progress metrics;
+- per-lesson notes;
+- optional cross-device synchronization through GitHub Gist;
+- optional AI tutor with Gemini or an OpenAI-compatible API.
 
-1. Crie uma conta no [github.com](https://github.com) (se ainda não tiver).
-2. Crie um repositório novo, **público**, ex.: `ibge-estudos`.
-3. Envie **todo o conteúdo desta pasta** para o repositório (arraste os arquivos na própria página do GitHub em *Add file → Upload files* — inclua as pastas `cursos/` e `icons/`).
-4. No repositório: **Settings → Pages → Branch: `main` → Save**.
-5. Em ~1 minuto o app estará em `https://SEU-USUARIO.github.io/ibge-estudos/`.
+## Product architecture today
 
-> O repositório é público, mas **nenhuma chave ou dado seu fica nele** — só o app e o conteúdo das aulas. Chaves ficam apenas no seu navegador; dados de estudo, num Gist secreto seu.
+```text
+index.html          dashboard / configuration UI
+app.js              local data + sync + AI + shared course integration
+questoes.html       question-practice UI
+questoes-data.js    question content
+cursos/             exam-specific lesson HTML
+sw.js               offline service worker
+manifest.json       PWA manifest
+icons/              application icons
+```
 
-## 2. Instalar como app
+The main technical debt is that platform behavior and IBGE-specific content are tightly coupled. `app.js` also owns local data, synchronization, AI providers and course integration in one large browser module.
 
-- **Android (Chrome):** abra o site → menu ⋮ → **Adicionar à tela inicial** (ou "Instalar app").
-- **iPhone (Safari):** botão compartilhar → **Adicionar à Tela de Início**.
-- **Computador (Chrome/Edge):** ícone de instalação na barra de endereço → **Instalar**.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the target split.
 
-Depois de instalado, abre em janela própria e funciona offline (a IA e a sincronização, claro, precisam de internet).
+## Security posture — important
 
-## 3. Ativar a sincronização entre dispositivos
+The current prototype is designed for personal use. **GitHub tokens and AI API keys are currently persisted in browser `localStorage`.** That is convenient but is not an appropriate production secret-storage model: any script executing in the same origin, or a compromised browser environment, may be able to read them.
 
-1. No GitHub: **Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token (classic)**.
-2. Dê um nome (ex.: `ibge-app`), validade *No expiration* (ou até setembro/2026) e marque **somente o escopo `gist`**. Gere e copie o token.
-3. No app: **⚙️ Config → Sincronização → cole o token → Conectar**. Repita nos outros dispositivos com o mesmo token.
+Do not use long-lived/high-scope credentials and do not configure this prototype on a shared or untrusted device.
 
-O app cria automaticamente um Gist **secreto** chamado `ibge-study-data.json` na sua conta e mantém tudo sincronizado (a cada alteração e ao abrir o app).
+The safer target architecture is:
 
-> Notas de segurança: o token fica salvo só no navegador de cada dispositivo — nunca no repositório. Um Gist "secreto" não aparece em buscas nem no seu perfil, mas quem tiver a URL exata consegue ler; por isso o app guarda nele **apenas dados de estudo** (progresso, notas, erros, simulados), nunca chaves. Se um token vazar, revogue-o no GitHub em segundos.
+- secrets kept server-side or exchanged through an OAuth/device-flow style backend;
+- short-lived sessions in the browser;
+- no persistent API key in frontend storage by default;
+- Content Security Policy and reduced third-party execution surface.
 
-## 4. Configurar o professor de IA
+The current Gist sync stores study data, not AI keys, but a secret Gist is **unlisted, not access-controlled by secrecy of the URL alone**.
 
-### Opção A — Google Gemini (gratuito, recomendado)
+Read [SECURITY.md](SECURITY.md) before using sync or AI credentials.
 
-1. Acesse [aistudio.google.com](https://aistudio.google.com) → **Get API key** → crie a chave (sem cartão de crédito).
-2. No app: **⚙️ Config → IA → provedor "Google Gemini"** → cole a chave → **Salvar** → **Testar conexão**.
+## Local data model
 
-O tier gratuito (modelo `gemini-2.5-flash`) dá centenas de perguntas por dia — mais do que suficiente. Aviso: no tier gratuito o Google pode usar os prompts para melhorar seus modelos.
+Study progress is stored by section with timestamps so local and remote copies can be merged at section level. The Gist sync includes study sections such as progress, notes, errors, simulations and stats.
 
-### Opção B — Grok (xAI) ou outra API padrão OpenAI
+AI configuration is maintained separately from the study-data object and is not intentionally pushed into the Gist payload.
 
-1. Crie a chave em [console.x.ai](https://console.x.ai) (a API da xAI é paga, por créditos pré-comprados).
-2. No app: provedor **"API compatível com OpenAI"** → Base URL `https://api.x.ai/v1`, sua chave e o modelo desejado.
+## Running locally
 
-> Se algum provedor bloquear chamadas feitas direto do navegador (erro de CORS no teste de conexão), a solução é um **Cloudflare Worker** gratuito servindo de ponte — nesse arranjo a chave fica no Worker, nem passa pelo navegador. Me peça que eu gero o código do Worker pronto.
-
-A chave de IA fica salva **somente no dispositivo** (não sincroniza) — cole-a uma vez em cada aparelho.
-
-## 5. Rodar localmente (opcional)
+Serve the repository over localhost so PWA/network features behave consistently:
 
 ```bash
 python3 -m http.server 8000
-# abra http://localhost:8000
 ```
 
-Abrir o `index.html` direto do disco (file://) não funciona para sincronização/IA por restrições do navegador — use o comando acima ou o GitHub Pages.
+Open `http://localhost:8000`.
 
----
+Repository checks:
 
-## Estrutura
-
-```
-index.html         → Painel do Candidato (hub)
-questoes.html      → Banco de Questões (60 questões comentadas)
-questoes-data.js   → dados das questões
-app.js             → dados, sincronização, IA e integração com os cursos
-sw.js              → service worker (offline)
-manifest.json      → manifesto do PWA
-icons/             → ícones do app
-cursos/            → os 3 cursos HTML (com a camada do app injetada)
+```bash
+npm test
 ```
 
-## Backup manual
+The current CI suite has no runtime package dependencies.
 
-**⚙️ Config → Backup** exporta/importa um JSON com todos os dados — útil como segurança extra antes da reta final.
+## Installing as a PWA
 
-Bons estudos! 🍀 Prova: **30/08/2026 (tarde)** · Cartão de convocação: ~24/08.
+Use the browser's install/add-to-home-screen flow after opening the deployed HTTPS site. Offline availability depends on resources cached by the service worker; synchronization and AI naturally still require network access.
+
+## Synchronization
+
+The current implementation can connect to the GitHub Gist API and create/update `ibge-study-data.json`.
+
+For this prototype, use the **smallest possible credential scope and short expiry**. Do not use a broad personal access token or a token you reuse for other work.
+
+Because the credential is currently persisted in `localStorage`, the recommended production evolution is to replace direct browser token handling rather than simply documenting token creation more aggressively.
+
+## AI tutor
+
+The tutor can call Gemini or an OpenAI-compatible endpoint and includes exam-specific context in its system prompt.
+
+For personal experimentation, browser-side BYOK can be useful. For a product deployed to other users, provider credentials should not be embedded or persistently stored in frontend code. Prefer a controlled backend/edge proxy, provider OAuth where available, per-user quotas and explicit data-handling disclosures.
+
+## Engineering principles
+
+- exam content must be separable from the learning engine;
+- progress and review logic should remain deterministic and testable;
+- secrets should not be part of the study-data sync model;
+- AI should augment explanations, not become the source of truth for exam rules;
+- offline/PWA behavior should degrade clearly when network-only features are unavailable;
+- security warnings must reflect the code that actually ships.
+
+## Target architecture
+
+```text
+src/
+├── engine/
+│   ├── progress/
+│   ├── review/
+│   ├── questions/
+│   ├── simulations/
+│   └── notes/
+├── content/
+│   └── ibge-2026/
+├── storage/
+├── sync/
+├── ai/
+├── pwa/
+└── ui/
+```
+
+This makes IBGE a content/configuration package rather than the identity of the software platform.
+
+## Validation and roadmap
+
+Priority order:
+
+1. remove persistent browser secret storage;
+2. isolate a reusable study engine from IBGE content;
+3. define versioned schemas for progress/sync data;
+4. add deterministic tests for review scheduling, merges and simulations;
+5. harden service-worker cache versioning and offline migrations;
+6. add content validation so question/course updates cannot silently break the app.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Changes that affect synchronization or credentials should be isolated in focused pull requests and must include a security impact note.
+
+## Disclaimer
+
+This is an independent study tool. Official notices, exam rules, dates and requirements should always be confirmed in the official organizer/institution sources.
