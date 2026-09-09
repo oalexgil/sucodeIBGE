@@ -40,7 +40,7 @@ test('study-data sync block does not include AI key configuration', () => {
 
 test('PWA offline contract remains present', () => {
   assert.match(index, /manifest\.json/);
-  assert.match(index, /serviceWorker/i);
+  assert.match(app, /navigator\.serviceWorker\.register/);
   assert.ok(fs.existsSync(new URL('../sw.js', import.meta.url)));
   assert.ok(fs.existsSync(new URL('../manifest.json', import.meta.url)));
 });
